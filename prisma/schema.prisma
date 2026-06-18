@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  income   Income[]
+  expense  Expense[]
+  lend     Lend[]
+  borrow   Borrow[]
+  budgets  Budget[]
+
+  @@map("users")
+}
+
+model Income {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float
+  date      String
+  from      String   @default("")
+  medium    String
+  category  String
+  reason    String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("income")
+}
+
+model Expense {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float
+  date      String
+  payTo     String   @default("") @map("pay_to")
+  medium    String
+  category  String
+  reason    String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("expense")
+}
+
+model Lend {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float
+  date      String
+  to        String
+  medium    String
+  dueDate   String   @default("") @map("due_date")
+  reason    String   @default("")
+  paid      Boolean  @default(false)
+  paidDate  String?  @map("paid_date")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("lend")
+}
+
+model Borrow {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  amount    Float
+  date      String
+  from      String
+  medium    String
+  dueDate   String   @default("") @map("due_date")
+  reason    String   @default("")
+  paid      Boolean  @default(false)
+  paidDate  String?  @map("paid_date")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("borrow")
+}
+
+model Budget {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  month     String
+  category  String
+  amount    Float    @default(0)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, month, category])
+  @@index([userId, month])
+  @@map("budget")
+}
