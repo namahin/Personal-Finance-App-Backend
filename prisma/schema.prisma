@@ -14,25 +14,73 @@ model User {
   passwordHash String    @map("password_hash")
   createdAt    DateTime  @default(now()) @map("created_at")
 
-  income   Income[]
-  expense  Expense[]
-  lend     Lend[]
-  borrow   Borrow[]
-  budgets  Budget[]
+  income     Income[]
+  expense    Expense[]
+  lend       Lend[]
+  borrow     Borrow[]
+  budgets    Budget[]
+  contacts   Contact[]
+  categories Category[]
+  mediums    Medium[]
 
   @@map("users")
 }
 
-model Income {
+model Contact {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
-  amount    Float
-  date      String
-  from      String   @default("")
-  medium    String
-  category  String
-  reason    String   @default("")
+  name      String
+  phone     String   @default("")
+  type      String   @default("person") // person | organization
   createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("contacts")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  forType   String   @map("for_type") // income | expense | both
+  color     String   @default("#6b7280")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name, forType])
+  @@index([userId, forType])
+  @@map("categories")
+}
+
+model Medium {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("mediums")
+}
+
+model Income {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  amount     Float
+  date       String
+  from       String   @default("")
+  fromPhone  String   @default("") @map("from_phone")
+  medium     String
+  category   String
+  reason     String   @default("")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -46,10 +94,12 @@ model Expense {
   amount    Float
   date      String
   payTo     String   @default("") @map("pay_to")
+  payToPhone String  @default("") @map("pay_to_phone")
   medium    String
   category  String
   reason    String   @default("")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -63,12 +113,14 @@ model Lend {
   amount    Float
   date      String
   to        String
+  toPhone   String   @default("") @map("to_phone")
   medium    String
   dueDate   String   @default("") @map("due_date")
   reason    String   @default("")
   paid      Boolean  @default(false)
   paidDate  String?  @map("paid_date")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -82,12 +134,14 @@ model Borrow {
   amount    Float
   date      String
   from      String
+  fromPhone String   @default("") @map("from_phone")
   medium    String
   dueDate   String   @default("") @map("due_date")
   reason    String   @default("")
   paid      Boolean  @default(false)
   paidDate  String?  @map("paid_date")
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
