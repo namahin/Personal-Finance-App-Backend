@@ -7,6 +7,10 @@ import incomeRouter from "./routes/income"
 import { expenseRouter, lendRouter, borrowRouter } from "./routes/transactions"
 import { budgetRouter, summaryRouter } from "./routes/budget"
 import { contactsRouter, categoriesRouter, mediumsRouter } from "./routes/settings"
+import { accountsRouter } from "./routes/accounts"
+import { recurringRouter } from "./routes/recurring"
+import { savingsRouter, tagsRouter } from "./routes/savings-tags"
+import { ledgerRouter, yearlyRouter } from "./routes/ledger-yearly"
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -26,8 +30,14 @@ app.use("/api/summary", summaryRouter)
 app.use("/api/contacts", contactsRouter)
 app.use("/api/categories", categoriesRouter)
 app.use("/api/mediums", mediumsRouter)
+app.use("/api/accounts", accountsRouter)
+app.use("/api/recurring", recurringRouter)
+app.use("/api/savings", savingsRouter)
+app.use("/api/tags", tagsRouter)
+app.use("/api/ledger", ledgerRouter)
+app.use("/api/yearly", yearlyRouter)
 
-app.get("/api/health", (_, res) => res.json({ status: "ok", version: "3.0.0" }))
+app.get("/api/health", (_, res) => res.json({ status: "ok", version: "4.0.0" }))
 app.use((_, res) => res.status(404).json({ error: "Route পাওয়া যায়নি" }))
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error(err.stack)

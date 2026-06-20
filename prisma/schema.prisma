@@ -14,14 +14,18 @@ model User {
   passwordHash String    @map("password_hash")
   createdAt    DateTime  @default(now()) @map("created_at")
 
-  income     Income[]
-  expense    Expense[]
-  lend       Lend[]
-  borrow     Borrow[]
-  budgets    Budget[]
-  contacts   Contact[]
-  categories Category[]
-  mediums    Medium[]
+  income       Income[]
+  expense      Expense[]
+  lend         Lend[]
+  borrow       Borrow[]
+  budgets      Budget[]
+  contacts     Contact[]
+  categories   Category[]
+  mediums      Medium[]
+  accounts     Account[]
+  recurrings   Recurring[]
+  savingsGoals SavingsGoal[]
+  tags         Tag[]
 
   @@map("users")
 }
@@ -31,7 +35,7 @@ model Contact {
   userId    String   @map("user_id")
   name      String
   phone     String   @default("")
-  type      String   @default("person") // person | organization
+  type      String   @default("person")
   createdAt DateTime @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -45,7 +49,7 @@ model Category {
   id        String   @id @default(uuid())
   userId    String   @map("user_id")
   name      String
-  forType   String   @map("for_type") // income | expense | both
+  forType   String   @map("for_type")
   color     String   @default("#6b7280")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -69,6 +73,86 @@ model Medium {
   @@map("mediums")
 }
 
+// ─── NEW: Account / Wallet ─────────────────────────────────────
+model Account {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  name          String   // "বিকাশ", "নগদ ব্যাংক", "হাতের ক্যাশ"
+  type          String   @default("wallet") // wallet | bank | cash | other
+  openingBalance Float   @default(0) @map("opening_balance")
+  color         String   @default("#3b82f6")
+  icon          String   @default("wallet")
+  isDefault     Boolean  @default(false) @map("is_default")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("accounts")
+}
+
+// ─── NEW: Recurring entries ─────────────────────────────────────
+model Recurring {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  type        String   // income | expense
+  amount      Float
+  name        String   // "মাসিক বেতন", "বাড়ি ভাড়া"
+  contactName String   @default("") @map("contact_name")
+  contactPhone String  @default("") @map("contact_phone")
+  medium      String
+  category    String
+  reason      String   @default("")
+  frequency   String   @default("monthly") // monthly | weekly | yearly
+  dayOfMonth  Int?     @map("day_of_month") // 1-31 for monthly
+  startDate   String   @map("start_date")
+  endDate     String?  @map("end_date")
+  lastRunDate String?  @map("last_run_date")
+  active      Boolean  @default(true)
+  autoCreate  Boolean  @default(false) @map("auto_create") // auto-create entry vs just remind
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("recurrings")
+}
+
+// ─── NEW: Savings Goals ─────────────────────────────────────────
+model SavingsGoal {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  name          String   // "জরুরি তহবিল", "ল্যাপটপ কেনা"
+  targetAmount  Float    @map("target_amount")
+  currentAmount Float    @default(0) @map("current_amount")
+  targetDate    String?  @map("target_date")
+  icon          String   @default("target")
+  color         String   @default("#10b981")
+  completed     Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("savings_goals")
+}
+
+// ─── NEW: Tags ────────────────────────────────────────────────
+model Tag {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  color     String   @default("#6b7280")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("tags")
+}
+
 model Income {
   id         String   @id @default(uuid())
   userId     String   @map("user_id")
@@ -79,6 +163,9 @@ model Income {
   medium     String
   category   String
   reason     String   @default("")
+  accountId  String?  @map("account_id")
+  tags       String   @default("") // comma-separated tag names
+  recurringId String? @map("recurring_id")
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
 
@@ -89,17 +176,20 @@ model Income {
 }
 
 model Expense {
-  id        String   @id @default(uuid())
-  userId    String   @map("user_id")
-  amount    Float
-  date      String
-  payTo     String   @default("") @map("pay_to")
-  payToPhone String  @default("") @map("pay_to_phone")
-  medium    String
-  category  String
-  reason    String   @default("")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  amount     Float
+  date       String
+  payTo      String   @default("") @map("pay_to")
+  payToPhone String   @default("") @map("pay_to_phone")
+  medium     String
+  category   String
+  reason     String   @default("")
+  accountId  String?  @map("account_id")
+  tags       String   @default("")
+  recurringId String? @map("recurring_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -117,6 +207,7 @@ model Lend {
   medium    String
   dueDate   String   @default("") @map("due_date")
   reason    String   @default("")
+  accountId String?  @map("account_id")
   paid      Boolean  @default(false)
   paidDate  String?  @map("paid_date")
   createdAt DateTime @default(now()) @map("created_at")
@@ -138,6 +229,7 @@ model Borrow {
   medium    String
   dueDate   String   @default("") @map("due_date")
   reason    String   @default("")
+  accountId String?  @map("account_id")
   paid      Boolean  @default(false)
   paidDate  String?  @map("paid_date")
   createdAt DateTime @default(now()) @map("created_at")

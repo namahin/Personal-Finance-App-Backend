@@ -14,6 +14,8 @@ const IncomeSchema = z.object({
   medium: z.string().min(1),
   category: z.string().min(1),
   reason: z.string().optional().default(""),
+  accountId: z.string().optional().nullable(),
+  tags: z.string().optional().default(""),
 })
 
 router.get("/", async (req: Request, res: Response) => {
@@ -31,7 +33,6 @@ router.post("/", async (req: Request, res: Response) => {
   if (!result.success) { res.status(400).json({ error: result.error.issues[0]?.message }); return }
   const { userId } = req.user!
   const item = await prisma.income.create({ data: { userId, ...result.data } })
-  // Auto-save contact
   if (result.data.from) {
     await prisma.contact.upsert({
       where: { userId_name: { userId, name: result.data.from } },

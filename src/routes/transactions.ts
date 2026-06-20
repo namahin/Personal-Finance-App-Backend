@@ -15,6 +15,8 @@ const ExpenseSchema = z.object({
   medium: z.string().min(1),
   category: z.string().min(1),
   reason: z.string().optional().default(""),
+  accountId: z.string().optional().nullable(),
+  tags: z.string().optional().default(""),
 })
 
 expenseRouter.get("/", async (req: Request, res: Response) => {
@@ -72,6 +74,7 @@ const LendSchema = z.object({
   medium: z.string().min(1),
   dueDate: z.string().optional().default(""),
   reason: z.string().optional().default(""),
+  accountId: z.string().optional().nullable(),
 })
 
 lendRouter.get("/", async (req: Request, res: Response) => {
@@ -134,6 +137,7 @@ const BorrowSchema = z.object({
   medium: z.string().min(1),
   dueDate: z.string().optional().default(""),
   reason: z.string().optional().default(""),
+  accountId: z.string().optional().nullable(),
 })
 
 borrowRouter.get("/", async (req: Request, res: Response) => {
