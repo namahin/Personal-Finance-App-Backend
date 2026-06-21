@@ -73,15 +73,20 @@ PORT            = 4000
 
 ### ২.৪ — Database Migration চালান
 
+⚠️ **গুরুত্বপূর্ণ:** `npx prisma` চালানোর আগে অবশ্যই `npm install` করে নিন। `npm install` ছাড়া `npx prisma` সরাসরি ইন্টারনেট থেকে সর্বশেষ Prisma ভার্সন (যেমন 7.x) নামিয়ে আনে, যা এই প্রজেক্টের schema-র (`url = env("DATABASE_URL")`, Prisma 6 সিনট্যাক্স) সাথে সামঞ্জস্যপূর্ণ নয় এবং `P1012` এরর দেখাবে। `package.json`-এ Prisma `6.19.3` সংস্করণ লক করা আছে — `npm install` চালালে সঠিক ভার্সনই ব্যবহার হবে।
+
 Deploy হওয়ার পর Render Dashboard → **Shell**:
 
 ```bash
+npm install
 npx prisma migrate deploy
 ```
 
-অথবা পুরনো JSON ডেটা থাকলে:
+লোকাল মেশিনে (deploy করার আগে টেস্ট করতে চাইলে):
 ```bash
-node migrate-json-to-pg.js
+cd hisabnkash-backend-v5
+npm install
+npx prisma migrate deploy
 ```
 
 ### ২.৫ — Backend URL নিন
