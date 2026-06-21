@@ -37,18 +37,18 @@ CREATE TABLE IF NOT EXISTS "tags" (
     CONSTRAINT "tags_pkey" PRIMARY KEY ("id")
 );
 
-ALTER TABLE "accounts" ADD CONSTRAINT IF NOT EXISTS "accounts_user_id_name_key" UNIQUE ("user_id", "name");
-ALTER TABLE "tags" ADD CONSTRAINT IF NOT EXISTS "tags_user_id_name_key" UNIQUE ("user_id", "name");
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_name_key" UNIQUE ("user_id", "name");
+ALTER TABLE "tags" ADD CONSTRAINT "tags_user_id_name_key" UNIQUE ("user_id", "name");
 
 CREATE INDEX IF NOT EXISTS "accounts_user_id_idx" ON "accounts"("user_id");
 CREATE INDEX IF NOT EXISTS "recurrings_user_id_idx" ON "recurrings"("user_id");
 CREATE INDEX IF NOT EXISTS "savings_goals_user_id_idx" ON "savings_goals"("user_id");
 CREATE INDEX IF NOT EXISTS "tags_user_id_idx" ON "tags"("user_id");
 
-ALTER TABLE "accounts" ADD CONSTRAINT IF NOT EXISTS "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "recurrings" ADD CONSTRAINT IF NOT EXISTS "recurrings_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "savings_goals" ADD CONSTRAINT IF NOT EXISTS "savings_goals_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-ALTER TABLE "tags" ADD CONSTRAINT IF NOT EXISTS "tags_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "recurrings" ADD CONSTRAINT "recurrings_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "savings_goals" ADD CONSTRAINT "savings_goals_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "tags" ADD CONSTRAINT "tags_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- New columns on existing tables
 ALTER TABLE "income" ADD COLUMN IF NOT EXISTS "account_id" TEXT;
